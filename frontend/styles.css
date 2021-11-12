@@ -1,0 +1,39 @@
+p.received-text {
+  margin: 5px;
+  position: relative;
+  max-width: 30em;
+  width: fit-content;
+
+  background-color: rgb(219, 219, 219);
+  padding: 1.125em 1.5em;
+  font-size: 1.25em;
+  border-radius: 0 1rem 1rem 1rem;
+  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.3),
+    0 0.0625rem 0.125rem rgba(0, 0, 0, 0.2);
+}
+
+div.sent-text {
+  position: relative;
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+p.sent-text {
+  margin: 5px;
+  text-align: right;
+  width: fit-content;
+
+  position: relative;
+  max-width: 40%;
+
+  background-color: rgb(0, 225, 255);
+  padding: 1.125em 1.5em;
+  font-size: 1.25em;
+  border-radius: 1rem 0 1rem 1rem;
+  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.3),
+    0 0.0625rem 0.125rem rgba(0, 0, 0, 0.2);
+}
+
+.submit-right {
+  float: right;
+}
