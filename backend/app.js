@@ -1,17 +1,6 @@
-const express = require("express");
+const app = require("express")();
+const { ok } = require("assert");
 const bodyParser = require("body-parser");
-
-const app = express();
-
-// CORS settings
-const cors = require("cors");
-const corsOptions = {
-  origin: "*",
-  credentials: true, //access-control-allow-credentials:true
-  optionSuccessStatus: 200,
-};
-
-app.use(cors(corsOptions)); // Use this after the variable declaration
 
 // Servidor HTTP
 const http = require("http").Server(app);
@@ -25,26 +14,43 @@ const io = require("socket.io")(http, {
   },
 });
 
-// Cliente
-const ioc = require("socket.io-client");
+// CORS settings
+const cors = require("cors");
+const corsOptions = {
+  origin: "*",
+  credentials: true, //access-control-allow-credentials:true
+  optionSuccessStatus: 200,
+};
 
-// Puerto es el primer argumento que se pasa
-const port = 2021;
+app.use(cors(corsOptions)); // Use this after the variable declaration
 
 // Se almacenan los mensajes recibidos
 var mensajes = [];
+
+io.on("connection", (socket) => {
+  socket.on("Mensaje ASCP", (msg) => {
+    console.log("se recibio un mensaje: ", msg);
+    io.emit("Mensaje ASCP", msg);
+    mensajes.push(msg);
+  });
+});
+
+// Cliente
+const ioc = require("socket.io-client");
+
+const port = 2021;
 
 // Se usa para ENVIAR mensajes
 var socketOut = null;
 
 app.get("/", (req, res) => {
-  res.send("ASCP framework");
+  res.sendFile(__dirname + "/index.html");
 });
 
 // Permitimos JSON
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(express.raw());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.raw());
 
 app.post("/test", (req, res) => {
   console.log("Got body:", req.body);
@@ -68,8 +74,9 @@ app.get("/enviar_mensaje", (req, res) => {
 //Enviar mensaje al host al que se encuentra conectado
 app.post("/enviar_mensaje", (req, res) => {
   console.log("Got body:", req.body);
+  // res.sendStatus(200);
   res.send("Mensaje: " + req.body.data);
-  socketOut.emit("Mensaje ASCP", req.body.data);
+  socketOut.emit("Mensaje ASCP", req.body);
 });
 
 // Obtener el último mensaje
@@ -77,14 +84,9 @@ app.get("/obtener_ultimo_mensaje", (req, res) => {
   res.send("Ultimo: " + mensajes[mensajes.length - 1]);
 });
 
-// Recibir mensajes
-io.on("connection", (socket) => {
-  console.log(socket.id);
-  socket.on("Mensaje ASCP", (ascp_msg) => {
-    console.log(socket.id + " " + JSON.stringify(ascp_msg));
-    mensajes.push(ascp_msg);
-    socket.send("Mensaje ASCP", ascp_msg);
-  });
+// Obtener todos los mensajes
+app.get("/mensajes", (req, res) => {
+  res.send(mensajes);
 });
 
 // Escuchar en el puerto especificado en la línea de comandos
