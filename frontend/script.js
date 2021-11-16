@@ -91,20 +91,10 @@ $("#chat-form").submit((e) => {
 socket.on("Mensaje ASCP", (msgObj) => {
   const msg = msgObj.data;
   console.log(`Received Message: ${msg}`);
-  // if (msg === sentText && sentMessage) {
   const newMessage = {
     received: true,
     message: msg,
   };
   messages.push(newMessage);
-  // setSentMessage(false);
-  // } else {
-  //   console.log(`RECEIVED ${msg}`);
-  //   const newMessage: Message = {
-  //     received: true,
-  //     // received: false,
-  //     message: msg,
-  //   } as Message;
-  //   setMessages([...messages, newMessage]);
-  // }
+  renderChat();
 });
