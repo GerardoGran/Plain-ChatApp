@@ -69,9 +69,8 @@ app.get("/enviar_mensaje", (req, res) => {
 //Enviar mensaje al host al que se encuentra conectado
 app.post("/enviar_mensaje", (req, res) => {
   console.log("Got body:", req.body);
-  // res.sendStatus(200);
   res.send("Mensaje: " + req.body.data);
-  socketOut.emit("Mensaje ASCP", req.body);
+  socketOut.send("Mensaje ASCP", req.body);
 });
 
 // Obtener el último mensaje
