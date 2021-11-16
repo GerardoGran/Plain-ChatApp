@@ -31,9 +31,7 @@ $("#ip-form").submit(function (e) {
     return false;
   }
 
-  fetch(`${ENDPOINT}/conectar?host=http://${ip}:2021`).then((response) => {
-    console.log(response.json());
-  });
+  fetch(`${ENDPOINT}/conectar?host=http://${ip}:2021`);
 
   $("#connection-modal").modal("hide");
 });
@@ -77,8 +75,6 @@ $("#chat-form").submit((e) => {
       message: messageText,
     };
 
-    console.log(encryptedMsg);
-
     document.querySelector("#chat-input").value = "";
     let data = JSON.stringify({ function: "1", data: encryptedMsg });
 
@@ -89,10 +85,9 @@ $("#chat-form").submit((e) => {
         "Content-Type": "application/json",
       },
       body: data,
-    }).then((res) => console.table(res));
+    });
 
     messages.push(newMessage);
-    console.table(messages);
     renderChat();
   }
 });
@@ -108,7 +103,6 @@ socket.on("Mensaje ASCP", (msgObj) => {
   console.log(`Received Encrypted Message: ${msg}`);
   const decryptedMsg = decryptMessage(msg, pass);
   console.log(`Plaintext Message ${decryptedMsg}`);
-  console.log(decryptedMsg);
   const newMessage = {
     received: true,
     message: decryptedMsg,
