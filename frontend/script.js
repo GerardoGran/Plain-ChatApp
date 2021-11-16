@@ -19,7 +19,7 @@ $("#ip-form").submit(function (e) {
     return false;
   }
 
-  fetch(`${REST_ENDPOINT}/conectar?host=http://${ip}`).then((response) => {
+  fetch(`${ENDPOINT}/conectar?host=http://${ip}`).then((response) => {
     console.log(response);
   });
 
