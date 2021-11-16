@@ -30,7 +30,7 @@ $("#ip-form").submit(function (e) {
 
 const validateIP = (ip) => {
   // Validates IP against regex
-  return /^(?:[\d]{1,3}\.){3}[\d]{1,3}$/.test(ip);
+  return /^(?:[\d]{1,3}\.){3}[\d]{1,3}:2021$/.test(ip);
 };
 
 // Messages
@@ -72,13 +72,13 @@ $("#chat-form").submit((e) => {
 
     fetch(`${ENDPOINT}/enviar_mensaje`, {
       method: "POST",
-      mode: "cors",
+      // mode: "cors",
       cache: "no-cache",
       headers: {
         "Content-Type": "application/json",
       },
       body: data,
-    });
+    }).then((res) => console.table(res));
 
     messages.push(newMessage);
     console.table(messages);
