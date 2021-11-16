@@ -17,7 +17,7 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Connect to user</h5>
+          <h5 class="modal-title">Connect to user</h5>
         </div>
         <div class="modal-body">
           <form method="post" id="ip-form">
@@ -32,7 +32,23 @@
     </div>
   </div>
 
-  <script src="/socket.io/socket.io.js"></script>
+  <!-- Chat Bubbles -->
+
+
+
+  <!-- Chat Form -->
+  <form method="post" id="chat-form" class="chat-form-container">
+    <div class="form-group chat-form-input">
+      <input class="form-control" id="chat-input" placeholder="Say something!" />
+    </div>
+    <button type="submit" class="submit-right btn btn-primary send-button">Send</button>
+    </div>
+  </form>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="node_modules/socket.io/client-dist/socket.io.js"></script>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
     integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
     crossorigin="anonymous"></script>
