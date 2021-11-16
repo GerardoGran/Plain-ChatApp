@@ -83,7 +83,7 @@ io.on("connection", (socket) => {
   socket.on("Mensaje ASCP", (ascp_msg) => {
     console.log(socket.id + " " + JSON.stringify(ascp_msg));
     mensajes.push(ascp_msg);
-    socketOut.emit("Mensaje ASCP", ascp_msg);
+    socketOut.send("Mensaje ASCP", ascp_msg);
   });
 });
 
