@@ -21,16 +21,18 @@ $("#ip-form").submit(function (e) {
     return false;
   }
 
-  fetch(`${ENDPOINT}/conectar?host=http://${ip}`).then((response) => {
-    console.log(response.json());
-  });
+  await fetch(`${ENDPOINT}/conectar?host=http://${ip}:2021`).then(
+    (response) => {
+      console.log(response.json());
+    }
+  );
 
   $("#connection-modal").modal("hide");
 });
 
 const validateIP = (ip) => {
   // Validates IP against regex
-  return /^(?:[\d]{1,3}\.){3}[\d]{1,3}:2021$/.test(ip);
+  return /^(?:[\d]{1,3}\.){3}[\d]{1,3}$/.test(ip);
 };
 
 // Messages
@@ -74,9 +76,7 @@ $("#chat-form").submit((e) => {
         "Content-Type": "application/json",
       },
       body: data,
-    })
-      .then((res) => console.table(res))
-      .catch((error) => console.log(error));
+    }).then((res) => console.table(res));
 
     messages.push(newMessage);
     console.table(messages);
@@ -86,12 +86,16 @@ $("#chat-form").submit((e) => {
 
 // Socket logic
 
+socket.on("connect", () => {
+  console.log(socket.id);
+});
+
 socket.on("Mensaje ASCP", (msgObj) => {
   const msg = msgObj.data;
-  console.log(`Received Message: ${msg.data}`);
+  console.log(`Received Message: ${msg}`);
   const newMessage = {
     received: true,
-    message: msg.data,
+    message: msg,
   };
   messages.push(newMessage);
   renderChat();
