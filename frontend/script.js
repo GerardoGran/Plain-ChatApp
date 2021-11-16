@@ -21,11 +21,9 @@ $("#ip-form").submit(function (e) {
     return false;
   }
 
-  await fetch(`${ENDPOINT}/conectar?host=http://${ip}:2021`).then(
-    (response) => {
-      console.log(response.json());
-    }
-  );
+  fetch(`${ENDPOINT}/conectar?host=http://${ip}:2021`).then((response) => {
+    console.log(response.json());
+  });
 
   $("#connection-modal").modal("hide");
 });
