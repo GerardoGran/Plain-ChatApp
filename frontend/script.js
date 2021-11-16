@@ -22,7 +22,7 @@ $("#ip-form").submit(function (e) {
   }
 
   fetch(`${ENDPOINT}/conectar?host=http://${ip}`).then((response) => {
-    console.log(response);
+    console.log(response.json());
   });
 
   $("#connection-modal").modal("hide");
@@ -64,21 +64,19 @@ $("#chat-form").submit((e) => {
       message: messageText,
     };
 
-    // setSentMessage(true);
-    // setSentText(messageText);
-
     document.querySelector("#chat-input").value = "";
     let data = JSON.stringify({ function: "1", data: messageText });
 
     fetch(`${ENDPOINT}/enviar_mensaje`, {
       method: "POST",
-      // mode: "cors",
-      cache: "no-cache",
       headers: {
+        Accept: "application/json",
         "Content-Type": "application/json",
       },
       body: data,
-    }).then((res) => console.table(res));
+    })
+      .then((res) => console.table(res))
+      .catch((error) => console.log(error));
 
     messages.push(newMessage);
     console.table(messages);
@@ -90,10 +88,10 @@ $("#chat-form").submit((e) => {
 
 socket.on("Mensaje ASCP", (msgObj) => {
   const msg = msgObj.data;
-  console.log(`Received Message: ${msg}`);
+  console.log(`Received Message: ${msg.data}`);
   const newMessage = {
     received: true,
-    message: msg,
+    message: msg.data,
   };
   messages.push(newMessage);
   renderChat();
