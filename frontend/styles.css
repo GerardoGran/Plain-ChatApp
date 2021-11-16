@@ -5,8 +5,22 @@ body {
   overflow-x: hidden;
 }
 
-p.received-text {
-  margin: 5px;
+/* Chat Bubbles */
+
+div.chat-container {
+  display: flex;
+  flex-direction: column;
+  margin: 10px auto 0 auto;
+  padding: 5px 0 5px 0;
+  height: 88vh;
+  max-height: 90%;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+div.received-text {
+  margin: 10px 0 10px 40px;
   position: relative;
   max-width: 30em;
   width: fit-content;
@@ -20,13 +34,7 @@ p.received-text {
 }
 
 div.sent-text {
-  position: relative;
-  display: flex;
-  flex-direction: row-reverse;
-}
-
-p.sent-text {
-  margin: 5px;
+  margin: 10px 40px 10px 0;
   text-align: right;
   width: fit-content;
 
@@ -39,11 +47,17 @@ p.sent-text {
   border-radius: 1rem 0 1rem 1rem;
   box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.3),
     0 0.0625rem 0.125rem rgba(0, 0, 0, 0.2);
+
+  margin-left: auto;
 }
+
+/* Modal */
 
 .submit-right {
   float: right;
 }
+
+/* Chat Form */
 
 .chat-form-container {
   display: flex;
