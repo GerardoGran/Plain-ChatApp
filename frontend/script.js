@@ -1,4 +1,4 @@
-const ENDPOINT = "https://localhost:2021";
+const ENDPOINT = "http://localhost:2021";
 
 const socket = io(ENDPOINT);
 
@@ -19,9 +19,9 @@ $("#ip-form").submit(function (e) {
     return false;
   }
 
-  /*
-  Call backend  
-  */
+  fetch(`${REST_ENDPOINT}/conectar?host=http://${ip}`).then((response) => {
+    console.log(response);
+  });
 
   $("#connection-modal").modal("hide");
 });
@@ -29,9 +29,4 @@ $("#ip-form").submit(function (e) {
 const validateIP = (ip) => {
   // Validates IP against regex
   return /^(?:[\d]{1,3}\.){3}[\d]{1,3}$/.test(ip);
-};
-
-const connect = async (ip) => {
-  const response = await fetch(`${REST_ENDPOINT}/conectar?host=http://${ip}`);
-  console.log(response);
 };
