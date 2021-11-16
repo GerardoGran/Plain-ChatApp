@@ -77,6 +77,8 @@ $("#chat-form").submit((e) => {
       message: messageText,
     };
 
+    console.log(encryptedMsg);
+
     document.querySelector("#chat-input").value = "";
     let data = JSON.stringify({ function: "1", data: encryptedMsg });
 
@@ -116,7 +118,7 @@ socket.on("Mensaje ASCP", (msgObj) => {
 // Encryption
 
 const encryptMessage = (msg, key) => {
-  return CryptoJS.DES.encrypt(msg, key);
+  return CryptoJS.DES.encrypt(msg, key).ciphertext.toString();
 };
 
 const decryptMsg = (msg, key) => {
