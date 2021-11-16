@@ -70,7 +70,7 @@ app.get("/enviar_mensaje", (req, res) => {
 app.post("/enviar_mensaje", (req, res) => {
   console.log("Got body:", req.body);
   res.send("Mensaje: " + req.body.data);
-  socketOut.send("Mensaje ASCP", req.body);
+  socketOut.emit("Mensaje ASCP", req.body);
 });
 
 // Obtener el último mensaje
