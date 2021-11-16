@@ -2,7 +2,9 @@ const ENDPOINT = "http://localhost:2021";
 
 const socket = io(ENDPOINT);
 
-// Connect Modal
+var pass = "";
+
+// Connect and Pass Modal
 
 $(window).on("load", () => {
   // Show modal on page load
@@ -18,6 +20,14 @@ $("#ip-form").submit(function (e) {
 
   if (!validateIP(ip)) {
     alert(`${ip} is not a valid IP\nXXX.XXX.XXX.XXX`);
+    return false;
+  }
+
+  pass = document.querySelector("#pass-input").value;
+  if (/\s/.test(pass) && pass === undefined) {
+    alert(
+      `${pass} is not a valid passphrase\nPlease insert a non-empty string.`
+    );
     return false;
   }
 
@@ -58,10 +68,13 @@ $("#chat-form").submit((e) => {
   const messageText = document.querySelector("#chat-input").value;
 
   if (/\S/.test(messageText) && messageText !== undefined) {
+    // Encrypt message
+    const encryptedMsg = encryptMessage(messageText, pass);
+
     // Check valid message
     const newMessage = {
       received: false,
-      message: messageText,
+      message: encryptedMsg,
     };
 
     document.querySelector("#chat-input").value = "";
@@ -90,11 +103,22 @@ socket.on("connect", () => {
 
 socket.on("Mensaje ASCP", (msgObj) => {
   const msg = msgObj.data;
-  console.log(`Received Message: ${msg}`);
+  console.log(`Received Encrypted Message: ${msg}`);
+  const decryptedMsg = decryptMsg(msg, pass);
   const newMessage = {
     received: true,
-    message: msg,
+    message: decryptedMsg,
   };
   messages.push(newMessage);
   renderChat();
 });
+
+// Encryption
+
+const encryptMessage = (msg, key) => {
+  return CryptoJS.DES.encrypt(msg, key);
+};
+
+const decryptMsg = (msg, key) => {
+  return CryptoJS.DES.decrypt(msg, key);
+};
