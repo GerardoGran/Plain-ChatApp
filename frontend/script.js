@@ -74,11 +74,11 @@ $("#chat-form").submit((e) => {
     // Check valid message
     const newMessage = {
       received: false,
-      message: encryptedMsg,
+      message: messageText,
     };
 
     document.querySelector("#chat-input").value = "";
-    let data = JSON.stringify({ function: "1", data: messageText });
+    let data = JSON.stringify({ function: "1", data: encryptedMsg });
 
     fetch(`${ENDPOINT}/enviar_mensaje`, {
       method: "POST",
