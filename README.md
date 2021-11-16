@@ -1,13 +1,16 @@
 # Plain-ChatApp
+
 Simple chat app for p2p communication using socket.io and express
 
 ## Run backend
 
-On the backend folder run on the command line
+From the parent folder run on the command line
 
 ```bash
-  node app.js
+  node backend/app.js
 ```
+
+This MUST be done first, the frontend depends on the backend to work properly
 
 ## Run frontend
 
