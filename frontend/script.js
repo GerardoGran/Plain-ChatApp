@@ -106,7 +106,8 @@ socket.on("connect", () => {
 socket.on("Mensaje ASCP", (msgObj) => {
   const msg = msgObj.data;
   console.log(`Received Encrypted Message: ${msg}`);
-  const decryptedMsg = decryptMsg(msg, pass);
+  const decryptedMsg = decryptMessage(msg, pass);
+  console.log(`Plaintext Message ${decryptedMsg}`);
   const newMessage = {
     received: true,
     message: decryptedMsg,
@@ -118,9 +119,9 @@ socket.on("Mensaje ASCP", (msgObj) => {
 // Encryption
 
 const encryptMessage = (msg, key) => {
-  return CryptoJS.DES.encrypt(msg, key).ciphertext.toString();
+  return CryptoJS.DES.encrypt(msg, key).toString();
 };
 
-const decryptMsg = (msg, key) => {
-  return CryptoJS.DES.decrypt(msg, key);
+const decryptMessage = (msg, key) => {
+  return CryptoJS.DES.decrypt(msg, key).toString();
 };
