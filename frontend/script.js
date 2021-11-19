@@ -14,8 +14,6 @@ BigInt.prototype.toJSON = function() { return this.toString()  }
 // Connect and Pass Modal
 $(window).on("load", () => {
   // Show modal on page load
-  $('#send').prop('disabled', true);
-  $('#init').prop('disabled', false);
   $("#connection-modal").modal("show");
 });
 
@@ -95,9 +93,6 @@ $("#init-form").submit((e) => {
   // Initiates Diffie-Hellman key exchange
   e.preventDefault();
   
-  $('#send').prop('disabled', false);
-  $('#init').prop('disabled', true);
-
   let data = calculateDiffieHellman(messageDict.SIMP_INIT_COMM);
   
   fetch(`${ENDPOINT}/enviar_mensaje`, {
