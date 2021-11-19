@@ -2,10 +2,15 @@ const ENDPOINT = "http://localhost:2021";
 
 const socket = io(ENDPOINT);
 
+BigInt.prototype.toJSON = function() { return this.toString()  }
+
+const a = 17123207n;
+
+const q = 2426697107n;
+
 var pass = "";
 
 // Connect and Pass Modal
-
 $(window).on("load", () => {
   // Show modal on page load
   $("#connection-modal").modal("show");
@@ -13,7 +18,6 @@ $(window).on("load", () => {
 
 $("#ip-form").submit(function (e) {
   // Hides modal, calls get /connect?host="{ip}"
-
   e.preventDefault();
 
   const ip = document.querySelector("#ip-input").value;
@@ -92,8 +96,28 @@ $("#chat-form").submit((e) => {
   }
 });
 
-// Socket logic
+$("#init-form").submit((e) => {
+  // Initiates Diffie-Hellman key exchange
+  e.preventDefault();
 
+  const x = generateRandomBigInt(0n, q);
+  const y = modExp(a, x, q);
+
+  let numbers = JSON.stringify({q: q, a: a, y: y})
+  let data = JSON.stringify({ function: "2", data: numbers})
+  
+  fetch(`${ENDPOINT}/enviar_mensaje`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: data,
+  });
+
+});
+
+// Socket logic
 socket.on("connect", () => {
   console.log(socket.id);
 });
@@ -112,7 +136,6 @@ socket.on("Mensaje ASCP", (msgObj) => {
 });
 
 // Encryption
-
 const encryptMessage = (msg, key) => {
   return CryptoJS.DES.encrypt(msg, key).toString();
 };
@@ -120,3 +143,41 @@ const encryptMessage = (msg, key) => {
 const decryptMessage = (msg, key) => {
   return CryptoJS.DES.decrypt(msg, key).toString(CryptoJS.enc.Utf8);
 };
+
+// Diffie-Hellman functions
+const modExp = function (base, exponent, modulus) {
+  base = base % modulus;
+  var result = 1n;
+  var x = base;
+  while (exponent > 0) {
+      var leastSignificantBit = exponent % 2n;
+      exponent = exponent / 2n;
+      if (leastSignificantBit == 1n) {
+          result = result * x;
+          result = result % modulus;
+      }
+      x = x * x;
+      x = x % modulus;
+  }
+  return result;
+};
+
+const generateRandomBigInt = function (lowBigInt, highBigInt) {
+  if (lowBigInt >= highBigInt) {
+    throw new Error('lowBigInt must be smaller than highBigInt');
+  }
+
+  const difference = highBigInt - lowBigInt;
+  const differenceLength = difference.toString().length;
+  let multiplier = '';
+  while (multiplier.length < differenceLength) {
+    multiplier += Math.random()
+      .toString()
+      .split('.')[1];
+  }
+  multiplier = multiplier.slice(0, differenceLength);
+  const divisor = '1' + '0'.repeat(differenceLength);
+  const randomDifference = (difference * BigInt(multiplier)) / BigInt(divisor);
+
+  return lowBigInt + randomDifference;
+}

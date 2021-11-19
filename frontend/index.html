@@ -39,14 +39,29 @@
   <!-- Chat Bubbles -->
   <div id="chat-window" class="chat-container"></div>
 
+  <!-- Init Form -->
+  <div>
+    <form method="post" id="init-form" class="chat-init-container">
+      <div class="container">
+            <button id="init" type="submit" class="init-right btn btn-primary">Init</button>
+      </div>
+    </form>
+  </div>
+  
   <!-- Chat Form -->
-  <form method="post" id="chat-form" class="chat-form-container">
-    <div class="form-group chat-form-input">
-      <input autocomplete="off" class="form-control" id="chat-input" placeholder="Say something!" />
-    </div>
-    <button type="submit" class="submit-right btn btn-primary send-button">Send</button>
-    </div>
-  </form>
+  <div>
+    <form method="post" id="chat-form" class="chat-form-container">
+      <div class="container">
+        <div class="row">
+          <div class="form-group chat-form-input">
+            <input autocomplete="off" class="form-control" id="chat-input" placeholder="Say something!" />
+          </div>
+          <button id="send" type="submit" class="submit-right btn btn-primary send-button">Send</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
 
   </div>
 
