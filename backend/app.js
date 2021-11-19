@@ -29,17 +29,13 @@ var mensajes = [];
 
 io.on("connection", (socket) => {
   socket.on("Mensaje ASCP", (msg) => {
-    console.log("se recibio un mensaje: ", msg);
-
-    const messageValue = msg.function;
-    console.log(messageValue);
-
+    console.log("Se recibio un mensaje: ", msg);
     io.emit("Mensaje ASCP", msg);
 
-    if (messageValue === "1") {
+    if (msg.function === "1") {
       mensajes.push(msg);
     }
-
+    
   });
 
 });

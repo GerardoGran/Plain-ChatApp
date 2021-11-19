@@ -1,24 +1,21 @@
 const ENDPOINT = "http://localhost:2021";
-
 const socket = io(ENDPOINT);
 
-BigInt.prototype.toJSON = function() { return this.toString()  }
-
+const messageDict = {SIMP_INIT_COMM: "2", SIMP_KEY_COMPUTED: "3"};
 const a = 17123207n;
-
 const q = 2426697107n;
 
-const messageDict = {SIMP_INIT_COMM: "2", SIMP_KEY_COMPUTED: "3"};
-
 var pass = "";
-
 var ownX = 0n;
-
 var foreignY = 0n;
+
+BigInt.prototype.toJSON = function() { return this.toString()  }
 
 // Connect and Pass Modal
 $(window).on("load", () => {
   // Show modal on page load
+  $('#send').prop('disabled', true);
+  $('#init').prop('disabled', false);
   $("#connection-modal").modal("show");
 });
 
@@ -32,14 +29,6 @@ $("#ip-form").submit(function (e) {
     alert(`${ip} is not a valid IP\nXXX.XXX.XXX.XXX`);
     return false;
   }
-
-  // pass = document.querySelector("#pass-input").value;
-  // if (/\s/.test(pass) && pass === undefined) {
-  //   alert(
-  //     `${pass} is not a valid passphrase\nPlease insert a non-empty string.`
-  //   );
-  //   return false;
-  // }
 
   fetch(`${ENDPOINT}/conectar?host=http://${ip}:2021`);
 
@@ -105,6 +94,9 @@ $("#chat-form").submit((e) => {
 $("#init-form").submit((e) => {
   // Initiates Diffie-Hellman key exchange
   e.preventDefault();
+  
+  $('#send').prop('disabled', false);
+  $('#init').prop('disabled', true);
 
   let data = calculateDiffieHellman(messageDict.SIMP_INIT_COMM);
   
@@ -143,8 +135,8 @@ socket.on("Mensaje ASCP", (msgObj) => {
     let data = calculateDiffieHellman(messageDict.SIMP_KEY_COMPUTED);
 
     foreignY = BigInt(msg.y);
-    pass = modExp(foreignY, ownX, q).toString();
-    console.log("Desde 2: " + pass);
+    pass = modExp(foreignY, ownX, q).toString().substring(0, 8);
+    console.log("SIMP_INIT_COMM: " + pass);
 
     fetch(`${ENDPOINT}/enviar_mensaje`, {
       method: "POST",
@@ -157,19 +149,11 @@ socket.on("Mensaje ASCP", (msgObj) => {
   }
   else if (msgObj.function === "3") {
     foreignY = BigInt(msg.y);
-    pass = modExp(foreignY, ownX, q).toString();
-    console.log("Desde 3: " + pass);
+    pass = modExp(foreignY, ownX, q).toString().substring(0, 8);
+    console.log("SIMP_KEY_COMPUTED: " + pass);
   }
   
 });
-
-const calculateDiffieHellman = (messageValue) => {
-  ownX = generateRandomBigInt(0n, q);
-  const y = modExp(a, ownX, q);
-
-  let numbers = {q: q, a: a, y: y};
-  return JSON.stringify({ function: messageValue, data: numbers});
-}
 
 // Encryption
 const encryptMessage = (msg, key) => {
@@ -181,6 +165,14 @@ const decryptMessage = (msg, key) => {
 };
 
 // Diffie-Hellman functions
+const calculateDiffieHellman = (messageValue) => {
+  ownX = generateRandomBigInt(0n, q);
+  const y = modExp(a, ownX, q);
+
+  let numbers = {q: q, a: a, y: y};
+  return JSON.stringify({ function: messageValue, data: numbers});
+}
+
 const modExp = function (base, exponent, modulus) {
   base = base % modulus;
   var result = 1n;
