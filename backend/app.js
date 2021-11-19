@@ -30,9 +30,18 @@ var mensajes = [];
 io.on("connection", (socket) => {
   socket.on("Mensaje ASCP", (msg) => {
     console.log("se recibio un mensaje: ", msg);
+
+    const messageValue = msg.function;
+    console.log(messageValue);
+
     io.emit("Mensaje ASCP", msg);
-    mensajes.push(msg);
+
+    if (messageValue === "1") {
+      mensajes.push(msg);
+    }
+
   });
+
 });
 
 // Cliente

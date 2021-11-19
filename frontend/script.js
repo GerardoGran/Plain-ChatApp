@@ -8,7 +8,13 @@ const a = 17123207n;
 
 const q = 2426697107n;
 
+const messageDict = {SIMP_INIT_COMM: "2", SIMP_KEY_COMPUTED: "3"};
+
 var pass = "";
+
+var ownX = 0n;
+
+var foreignY = 0n;
 
 // Connect and Pass Modal
 $(window).on("load", () => {
@@ -27,13 +33,13 @@ $("#ip-form").submit(function (e) {
     return false;
   }
 
-  pass = document.querySelector("#pass-input").value;
-  if (/\s/.test(pass) && pass === undefined) {
-    alert(
-      `${pass} is not a valid passphrase\nPlease insert a non-empty string.`
-    );
-    return false;
-  }
+  // pass = document.querySelector("#pass-input").value;
+  // if (/\s/.test(pass) && pass === undefined) {
+  //   alert(
+  //     `${pass} is not a valid passphrase\nPlease insert a non-empty string.`
+  //   );
+  //   return false;
+  // }
 
   fetch(`${ENDPOINT}/conectar?host=http://${ip}:2021`);
 
@@ -100,11 +106,7 @@ $("#init-form").submit((e) => {
   // Initiates Diffie-Hellman key exchange
   e.preventDefault();
 
-  const x = generateRandomBigInt(0n, q);
-  const y = modExp(a, x, q);
-
-  let numbers = JSON.stringify({q: q, a: a, y: y})
-  let data = JSON.stringify({ function: "2", data: numbers})
+  let data = calculateDiffieHellman(messageDict.SIMP_INIT_COMM);
   
   fetch(`${ENDPOINT}/enviar_mensaje`, {
     method: "POST",
@@ -124,16 +126,50 @@ socket.on("connect", () => {
 
 socket.on("Mensaje ASCP", (msgObj) => {
   const msg = msgObj.data;
-  console.log(`Received Encrypted Message: ${msg}`);
-  const decryptedMsg = decryptMessage(msg, pass);
-  console.log(`Plaintext Message ${decryptedMsg}`);
-  const newMessage = {
-    received: true,
-    message: decryptedMsg,
-  };
-  messages.push(newMessage);
-  renderChat();
+  console.log(msgObj);
+
+  if (msgObj.function === "1") {
+    console.log(`Received Encrypted Message: ${msg}`);
+    const decryptedMsg = decryptMessage(msg, pass);
+    console.log(`Plaintext Message ${decryptedMsg}`);
+    const newMessage = {
+      received: true,
+      message: decryptedMsg,
+    };
+    messages.push(newMessage);
+    renderChat();
+  }
+  else if (msgObj.function === "2") {
+    let data = calculateDiffieHellman(messageDict.SIMP_KEY_COMPUTED);
+
+    foreignY = BigInt(msg.y);
+    pass = modExp(foreignY, ownX, q).toString();
+    console.log("Desde 2: " + pass);
+
+    fetch(`${ENDPOINT}/enviar_mensaje`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: data,
+    });
+  }
+  else if (msgObj.function === "3") {
+    foreignY = BigInt(msg.y);
+    pass = modExp(foreignY, ownX, q).toString();
+    console.log("Desde 3: " + pass);
+  }
+  
 });
+
+const calculateDiffieHellman = (messageValue) => {
+  ownX = generateRandomBigInt(0n, q);
+  const y = modExp(a, ownX, q);
+
+  let numbers = {q: q, a: a, y: y};
+  return JSON.stringify({ function: messageValue, data: numbers});
+}
 
 // Encryption
 const encryptMessage = (msg, key) => {
