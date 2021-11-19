@@ -1,6 +1,7 @@
 const app = require("express")();
 const { ok } = require("assert");
 const bodyParser = require("body-parser");
+const express = require('express');
 
 // Servidor HTTP
 const http = require("http").Server(app);
@@ -53,9 +54,11 @@ app.get("/", (req, res) => {
 });
 
 // Permitimos JSON
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use(bodyParser.raw());
+app.use(express.urlencoded({
+  extended: true
+}));
+app.use(express.json());
+app.use(express.raw());
 
 app.post("/test", (req, res) => {
   console.log("Got body:", req.body);

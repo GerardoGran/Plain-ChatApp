@@ -1,7 +1,7 @@
 const ENDPOINT = "http://localhost:2021";
 const socket = io(ENDPOINT);
 
-const messageDict = {SIMP_INIT_COMM: "2", SIMP_KEY_COMPUTED: "3"};
+const messageDict = {SIMP_INIT_COMM: 2, SIMP_KEY_COMPUTED: 3};
 const a = 17123207n;
 const q = 2426697107n;
 
@@ -73,7 +73,7 @@ $("#chat-form").submit((e) => {
     };
 
     document.querySelector("#chat-input").value = "";
-    let data = JSON.stringify({ function: "1", data: encryptedMsg });
+    let data = JSON.stringify({ function: 1, data: encryptedMsg });
 
     fetch(`${ENDPOINT}/enviar_mensaje`, {
       method: "POST",
@@ -115,7 +115,7 @@ socket.on("Mensaje ASCP", (msgObj) => {
   const msg = msgObj.data;
   console.log(msgObj);
 
-  if (msgObj.function === "1") {
+  if (msgObj.function === 1) {
     console.log(`Received Encrypted Message: ${msg}`);
     const decryptedMsg = decryptMessage(msg, pass);
     console.log(`Plaintext Message ${decryptedMsg}`);
@@ -126,7 +126,7 @@ socket.on("Mensaje ASCP", (msgObj) => {
     messages.push(newMessage);
     renderChat();
   }
-  else if (msgObj.function === "2") {
+  else if (msgObj.function === 2) {
     let data = calculateDiffieHellman(messageDict.SIMP_KEY_COMPUTED);
 
     foreignY = BigInt(msg.y);
@@ -142,7 +142,7 @@ socket.on("Mensaje ASCP", (msgObj) => {
       body: data,
     });
   }
-  else if (msgObj.function === "3") {
+  else if (msgObj.function === 3) {
     foreignY = BigInt(msg.y);
     pass = modExp(foreignY, ownX, q).toString().substring(0, 8);
     console.log("SIMP_KEY_COMPUTED: " + pass);
@@ -164,8 +164,7 @@ const calculateDiffieHellman = (messageValue) => {
   ownX = generateRandomBigInt(0n, q);
   const y = modExp(a, ownX, q);
 
-  let numbers = {q: q, a: a, y: y};
-  return JSON.stringify({ function: messageValue, data: numbers});
+  return JSON.stringify({ function: messageValue, data: {q: Number(q), a: Number(a), y: Number(y)}});
 }
 
 const modExp = function (base, exponent, modulus) {
