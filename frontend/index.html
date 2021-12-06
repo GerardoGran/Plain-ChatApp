@@ -39,16 +39,21 @@
   <div>
     <form method="post" id="init-form" class="chat-init-container">
       <div class="container">
-            <button id="init" type="submit" class="init-right btn btn-primary">Init</button>
+        <button id="init" type="submit" class="init-right btn btn-primary">Init</button>
       </div>
     </form>
   </div>
-  
+
   <!-- Chat Form -->
   <div>
     <form method="post" id="chat-form" class="chat-form-container">
       <div class="container">
         <div class="row">
+          <label class="form-check-label check-label" for="MAC-check">
+            Incorrect MAC
+          </label>
+          <input class="form-check-input" type="checkbox" value="incorrectMAC" id="MAC-check">
+
           <div class="form-group chat-form-input">
             <input autocomplete="off" class="form-control" id="chat-input" placeholder="Say something!" />
           </div>

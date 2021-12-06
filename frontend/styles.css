@@ -79,7 +79,7 @@ div.sent-text {
   flex-grow: 1;
 }
 
-.init-right{
+.init-right {
   float: right;
   width: 104px;
   margin-right: -14px;
@@ -95,4 +95,8 @@ div.sent-text {
   width: 100vw;
   padding: 10px;
   gap: 10px;
+}
+
+.check-label {
+  margin-right: 5px;
 }
