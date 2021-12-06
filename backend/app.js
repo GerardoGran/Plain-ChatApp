@@ -1,8 +1,8 @@
 const app = require("express")();
 const { ok } = require("assert");
 const bodyParser = require("body-parser");
-const express = require('express');
-const crypto = require("crypto")
+const express = require("express");
+const crypto = require("crypto");
 
 // Servidor HTTP
 const http = require("http").Server(app);
@@ -29,18 +29,21 @@ app.use(cors(corsOptions)); // Use this after the variable declaration
 // Se almacenan los mensajes recibidos
 var mensajes = [];
 
-const messageDict = {SIMP_INIT_COMM: 2, SIMP_KEY_COMPUTED: 3};
+const messageDict = { SIMP_INIT_COMM: 2, SIMP_KEY_COMPUTED: 3 };
 const a = 17123207n;
 const q = 2426697107n;
 
 var pass = "";
 var ownX = 0n;
 var foreignY = 0n;
+var MAC = "";
 
-BigInt.prototype.toJSON = function() { return this.toString()  }
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
 
 io.on("connection", (socket) => {
-  socket.on('enviar-mensaje', (msg) => {
+  socket.on("enviar-mensaje", (msg) => {
     socket.emit("Mensaje ASCP", msg);
   });
 
@@ -49,13 +52,21 @@ io.on("connection", (socket) => {
 
     if (msgObj.function === 1) {
       const decryptedMsg = decryptMessage(msg, pass);
-      
-      socket.broadcast.emit("receive-msg", {
-        function: 1,
-        data: decryptedMsg
-      });
-    }
-    else if (msgObj.function === 2) {
+
+      const calculatedMAC = calcMAC(decryptedMsg);
+      const decryptMAC = decryptMessage(msgObj.MAC, pass);
+
+      console.log(calculatedMAC, decryptMAC);
+
+      if (calculatedMAC === decryptMAC) {
+        socket.broadcast.emit("receive-msg", {
+          function: 1,
+          data: decryptedMsg,
+        });
+      } else {
+        socket.broadcast.emit("wrong-mac");
+      }
+    } else if (msgObj.function === 2) {
       let data = calculateDiffieHellman(messageDict.SIMP_KEY_COMPUTED);
 
       foreignY = BigInt(msg.y);
@@ -63,8 +74,7 @@ io.on("connection", (socket) => {
       console.log("SIMP_INIT_COMM: " + pass);
 
       socket.broadcast.emit("set-key", data);
-    }
-    else if (msgObj.function === 3) {
+    } else if (msgObj.function === 3) {
       foreignY = BigInt(msg.y);
       pass = modExp(foreignY, ownX, q).toString().substring(0, 8);
 
@@ -86,9 +96,11 @@ app.get("/", (req, res) => {
 });
 
 // Permitimos JSON
-app.use(express.urlencoded({
-  extended: true
-}));
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
 app.use(express.json());
 app.use(express.raw());
 
@@ -117,10 +129,16 @@ app.post("/enviar_mensaje", (req, res) => {
   res.send("Mensaje: " + req.body.data);
 
   if (req.body.function === 1) {
+    MAC = calcMAC(req.body.data);
+
+    const eMAC = encryptMessage(MAC, pass);
+    const eMsg = encryptMessage(req.body.data, pass);
+
     let newBody = {
       function: req.body.function,
-      data: encryptMessage(req.body.data, pass)
-    }
+      MAC: eMAC,
+      data: eMsg,
+    };
     socketOut.emit("Mensaje ASCP", newBody);
   } else {
     socketOut.emit("Mensaje ASCP", req.body);
@@ -129,7 +147,7 @@ app.post("/enviar_mensaje", (req, res) => {
 
 app.get("/diffie", (req, res) => {
   let data = calculateDiffieHellman(messageDict.SIMP_INIT_COMM);
-  socketOut.emit("Mensaje ASCP", data)
+  socketOut.emit("Mensaje ASCP", data);
 });
 
 // Obtener el último mensaje
@@ -164,7 +182,7 @@ const encryptMessage = (plainText, key) => {
 const decryptMessage = (cipherText, key) => {
   if (key === null) {
     return cipherText;
-  } 
+  }
 
   const keyBuffer = Buffer.from(key.toString().substring(0, 8), "utf-8");
   const cipher = crypto.createDecipheriv("des-ecb", keyBuffer, "");
@@ -180,47 +198,55 @@ const decryptMessage = (cipherText, key) => {
   return c;
 };
 
+//Calculate MAC for messages
+const calcMAC = (msg) => {
+  var MACsha = crypto.createHmac("sha1", pass);
+  MACsha.update(msg);
+  return MACsha.digest("base64");
+};
+
 // Diffie-Hellman functions
 const calculateDiffieHellman = (messageValue) => {
   ownX = generateRandomBigInt(0n, q);
   const y = modExp(a, ownX, q);
 
-  return { function: messageValue, data: {q: Number(q), a: Number(a), y: Number(y)}};
-}
+  return {
+    function: messageValue,
+    data: { q: Number(q), a: Number(a), y: Number(y) },
+  };
+};
 
 const modExp = function (base, exponent, modulus) {
   base = base % modulus;
   var result = 1n;
   var x = base;
   while (exponent > 0) {
-      var leastSignificantBit = exponent % 2n;
-      exponent = exponent / 2n;
-      if (leastSignificantBit == 1n) {
-          result = result * x;
-          result = result % modulus;
-      }
-      x = x * x;
-      x = x % modulus;
+    var leastSignificantBit = exponent % 2n;
+    exponent = exponent / 2n;
+    if (leastSignificantBit == 1n) {
+      result = result * x;
+      result = result % modulus;
+    }
+    x = x * x;
+    x = x % modulus;
   }
   return result;
 };
 
 const generateRandomBigInt = function (lowBigInt, highBigInt) {
   if (lowBigInt >= highBigInt) {
-    throw new Error('lowBigInt must be smaller than highBigInt');
+    throw new Error("lowBigInt must be smaller than highBigInt");
   }
 
   const difference = highBigInt - lowBigInt;
   const differenceLength = difference.toString().length;
-  let multiplier = '';
+  let multiplier = "";
   while (multiplier.length < differenceLength) {
-    multiplier += Math.random()
-      .toString()
-      .split('.')[1];
+    multiplier += Math.random().toString().split(".")[1];
   }
   multiplier = multiplier.slice(0, differenceLength);
-  const divisor = '1' + '0'.repeat(differenceLength);
+  const divisor = "1" + "0".repeat(differenceLength);
   const randomDifference = (difference * BigInt(multiplier)) / BigInt(divisor);
 
   return lowBigInt + randomDifference;
-}
+};

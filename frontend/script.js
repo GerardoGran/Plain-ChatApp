@@ -1,7 +1,7 @@
 const ENDPOINT = "http://localhost:2021";
 const socket = io(ENDPOINT);
 
-const messageDict = {SIMP_INIT_COMM: 2, SIMP_KEY_COMPUTED: 3};
+const messageDict = { SIMP_INIT_COMM: 2, SIMP_KEY_COMPUTED: 3 };
 const a = 17123207n;
 const q = 2426697107n;
 
@@ -9,7 +9,9 @@ var pass = "";
 var ownX = 0n;
 var foreignY = 0n;
 
-BigInt.prototype.toJSON = function() { return this.toString()  }
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
 
 // Connect and Pass Modal
 $(window).on("load", () => {
@@ -89,13 +91,13 @@ $("#chat-form").submit((e) => {
 $("#init-form").submit((e) => {
   // Initiates Diffie-Hellman key exchange
   e.preventDefault();
-    
+
   fetch(`${ENDPOINT}/diffie`, {
     method: "GET",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
-    }
+    },
   });
 });
 
@@ -113,7 +115,7 @@ socket.on("set-key", (msgObj) => {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(msgObj)
+    body: JSON.stringify(msgObj),
   });
 });
 
@@ -128,4 +130,8 @@ socket.on("receive-msg", (msgObj) => {
 
   messages.push(newMessage);
   renderChat();
+});
+
+socket.on("wromg-mac", () => {
+  window.alert("Mismatch in MAC! Be careful!");
 });
