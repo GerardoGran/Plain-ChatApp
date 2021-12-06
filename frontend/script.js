@@ -73,15 +73,27 @@ $("#chat-form").submit((e) => {
 
     document.querySelector("#chat-input").value = "";
     let data = JSON.stringify({ function: 1, data: messageText });
+    let badMAC = document.getElementById("MAC-check").checked;
 
-    fetch(`${ENDPOINT}/enviar_mensaje`, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: data,
-    });
+    if (!badMAC) {
+      fetch(`${ENDPOINT}/enviar_mensaje`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: data,
+      });
+    } else {
+      fetch(`${ENDPOINT}/enviar_mal`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: data,
+      });
+    }
 
     messages.push(newMessage);
     renderChat();
@@ -132,6 +144,6 @@ socket.on("receive-msg", (msgObj) => {
   renderChat();
 });
 
-socket.on("wromg-mac", () => {
+socket.on("wrong-mac", () => {
   window.alert("Mismatch in MAC! Be careful!");
 });

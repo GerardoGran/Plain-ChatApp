@@ -145,6 +145,30 @@ app.post("/enviar_mensaje", (req, res) => {
   }
 });
 
+// Enviar con MAC erronea
+app.post("/enviar_mal", (req, res) => {
+  console.log("Got body:", req.body);
+  res.send("Mensaje: " + req.body.data);
+
+  if (req.body.function === 1) {
+    let badString = obfuscateString(req.body.data);
+    console.log(`Bad string ${badString}`);
+    MAC = calcMAC(badString);
+
+    const eMAC = encryptMessage(MAC, pass);
+    const eMsg = encryptMessage(req.body.data, pass);
+
+    let newBody = {
+      function: req.body.function,
+      MAC: eMAC,
+      data: eMsg,
+    };
+    socketOut.emit("Mensaje ASCP", newBody);
+  } else {
+    socketOut.emit("Mensaje ASCP", req.body);
+  }
+});
+
 app.get("/diffie", (req, res) => {
   let data = calculateDiffieHellman(messageDict.SIMP_INIT_COMM);
   socketOut.emit("Mensaje ASCP", data);
@@ -249,4 +273,11 @@ const generateRandomBigInt = function (lowBigInt, highBigInt) {
   const randomDifference = (difference * BigInt(multiplier)) / BigInt(divisor);
 
   return lowBigInt + randomDifference;
+};
+
+const obfuscateString = function (str) {
+  return str
+    .split()
+    .map((c) => String.fromCharCode(c.charCodeAt(0) + 1))
+    .join();
 };
