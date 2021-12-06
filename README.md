@@ -14,9 +14,9 @@ This MUST be done first, the frontend depends on the backend to work properly
 
 ## Run frontend
 
-Open the plain html file in any browser.
-Insert the other user's IP
-One of the two users must press the INIT button to agree on a key
+- Open the plain html file in any browser.
+- Insert the other user's IP.
+- One of the two users must press the INIT button to agree on a key.
 
 ## Send Wrong MAC on purpose
 
