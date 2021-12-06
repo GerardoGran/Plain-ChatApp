@@ -1,11 +1,17 @@
 const ENDPOINT = "http://localhost:2021";
-
 const socket = io(ENDPOINT);
 
+const messageDict = {SIMP_INIT_COMM: 2, SIMP_KEY_COMPUTED: 3};
+const a = 17123207n;
+const q = 2426697107n;
+
 var pass = "";
+var ownX = 0n;
+var foreignY = 0n;
+
+BigInt.prototype.toJSON = function() { return this.toString()  }
 
 // Connect and Pass Modal
-
 $(window).on("load", () => {
   // Show modal on page load
   $("#connection-modal").modal("show");
@@ -13,21 +19,12 @@ $(window).on("load", () => {
 
 $("#ip-form").submit(function (e) {
   // Hides modal, calls get /connect?host="{ip}"
-
   e.preventDefault();
 
   const ip = document.querySelector("#ip-input").value;
 
   if (!validateIP(ip)) {
     alert(`${ip} is not a valid IP\nXXX.XXX.XXX.XXX`);
-    return false;
-  }
-
-  pass = document.querySelector("#pass-input").value;
-  if (/\s/.test(pass) && pass === undefined) {
-    alert(
-      `${pass} is not a valid passphrase\nPlease insert a non-empty string.`
-    );
     return false;
   }
 
@@ -66,9 +63,6 @@ $("#chat-form").submit((e) => {
   const messageText = document.querySelector("#chat-input").value;
 
   if (/\S/.test(messageText) && messageText !== undefined) {
-    // Encrypt message
-    const encryptedMsg = encryptMessage(messageText, pass);
-
     // Check valid message
     const newMessage = {
       received: false,
@@ -76,7 +70,7 @@ $("#chat-form").submit((e) => {
     };
 
     document.querySelector("#chat-input").value = "";
-    let data = JSON.stringify({ function: "1", data: encryptedMsg });
+    let data = JSON.stringify({ function: 1, data: messageText });
 
     fetch(`${ENDPOINT}/enviar_mensaje`, {
       method: "POST",
@@ -92,31 +86,46 @@ $("#chat-form").submit((e) => {
   }
 });
 
-// Socket logic
+$("#init-form").submit((e) => {
+  // Initiates Diffie-Hellman key exchange
+  e.preventDefault();
+    
+  fetch(`${ENDPOINT}/diffie`, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    }
+  });
+});
 
+// Socket logic
 socket.on("connect", () => {
   console.log(socket.id);
 });
 
-socket.on("Mensaje ASCP", (msgObj) => {
+socket.on("set-key", (msgObj) => {
+  console.log(msgObj);
+
+  fetch(`${ENDPOINT}/enviar_mensaje`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(msgObj)
+  });
+});
+
+socket.on("receive-msg", (msgObj) => {
   const msg = msgObj.data;
-  console.log(`Received Encrypted Message: ${msg}`);
-  const decryptedMsg = decryptMessage(msg, pass);
-  console.log(`Plaintext Message ${decryptedMsg}`);
+  console.log(msgObj);
+
   const newMessage = {
     received: true,
-    message: decryptedMsg,
+    message: msg,
   };
+
   messages.push(newMessage);
   renderChat();
 });
-
-// Encryption
-
-const encryptMessage = (msg, key) => {
-  return CryptoJS.DES.encrypt(msg, key).toString();
-};
-
-const decryptMessage = (msg, key) => {
-  return CryptoJS.DES.decrypt(msg, key).toString(CryptoJS.enc.Utf8);
-};
